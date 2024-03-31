@@ -1,4 +1,4 @@
-name: Deploy Frontend
+name: Deploy to Elastic Beanstalk
 
 on:
   workflow_dispatch:
@@ -23,8 +23,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: docker-gh
-          environment_name: docker-gh-env
+          application_name: docker-react-demo-gh
+          environment_name: docker-react-demo-gh-env
           existing_bucket_name: elasticbeanstalk-us-west-1-815332568426
           region: us-west-1
           version_label: ${{ github.sha }}
