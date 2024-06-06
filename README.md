@@ -1,70 +1,136 @@
-# Getting Started with Create React App
+# docker-react-demo
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Demo project for deploying a Docker application to AWS Elastic Beanstalk.
 
-## Available Scripts
+## NodeJS Commands
 
-In the project directory, you can run:
+To create the app:
+```
+npx create-react-app docker-react-demo
+```
 
-### `npm start`
+To start the app:
+```
+npm run start
+```
+or
+```
+npm start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+To run the unit tests:
+```
+npm run test
+```
+or
+```
+npm test
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+To create a production build:
+```
+npm run build
+```
 
-### `npm test`
+To clean the production build:
+```
+npm run clean
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Note:
+The `npm test`, `npm start`, `npm restart`, and `npm stop` commands are all aliases for `npm run xxx`.
 
-### `npm run build`
+For all other scripts use `npm run xxx`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Docker Commands
+Build a tagged development image and see output:
+```
+docker build -f Dockerfile.dev -t boltgun69/docker-react-demo --progress=plain .
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Build a tagged production image and see output:
+```
+docker build -t boltgun69/docker-react-demo --progress=plain .
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Run with port mapping:
+```
+docker run -p <local port>:<port in running container> --name <container name> <image ID or tag name>
+```
 
-### `npm run eject`
+Run development app (just NodeJS):
+```
+docker run -p 3000:3000 --name docker-react-demo boltgun69/docker-react-demo
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Run production app (Nginx):
+```
+docker run -p 8080:80 --name docker-react-demo boltgun69/docker-react-demo
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Run with port mapping and volumes:
+```
+docker run -p <local port>:<port in running container> -v /app/node_modules -v "$(pwd):/app" <image ID or tag name>
+```
+```
+docker run -p 3000:3000 -v /app/node_modules -v "$(pwd):/app" boltgun69/docker-react-demo
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+To stop local container:
+```
+docker stop <image ID or tag name>
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The development app will be available at [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+Explore the file system of the running container:
+```
+docker run -it <image ID or tag name> sh
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Run unit tests:
+```
+docker run -it <image ID or tag name> npm run test
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Build and run the development app and unit test containers:
+```
+docker compose -f docker-compose-dev.yml up --build
+```
 
-### Code Splitting
+Stop the development app and unit test containers:
+```
+docker compose -f docker-compose-dev.yml down
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Build and run the production app container:
+```
+docker compose up --build
+```
 
-### Analyzing the Bundle Size
+Stop the production app container:
+```
+docker compose down
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+To deploy via the Elastic Beanstalk command line client:
+```
+eb init
+eb create
+eb open
+```
 
-### Making a Progressive Web App
+To terminate the Elastic Beanstalk environment:
+```
+eb terminate
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+To make a request of the endpoint of the local container:
+```
+curl -i -X GET "http://localhost:8080"
+```
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+To make a request of the endpoint in AWS Elastic Beanstalk (example):
+```
+curl -i -X GET "http://docker-react-demo-gh-env.eba-w23x24z6.us-west-1.elasticbeanstalk.com"
+```
