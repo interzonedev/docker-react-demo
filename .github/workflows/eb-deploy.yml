@@ -15,15 +15,20 @@ jobs:
       - name: Generate deployment package
         run: zip -r deploy.zip . -x '*.git*'
 
-      - name: Deploy to Elastic Beanstalk
-        uses: einaregilsson/beanstalk-deploy@v22
-        with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: docker-react-demo-gh
-          environment_name: docker-react-demo-gh-env
-          existing_bucket_name: elasticbeanstalk-us-west-1-815332568426
-          region: us-west-1
-          version_label: ${{ github.sha }}-${{ github.run_number }}
-          deployment_package: deploy.zip
-          use_existing_version_if_available: true
+      - name: Install Dependencies & Deploy to AWS
+        run: |
+          sudo npm install -g beanstalk-deploy --unsafe-perm
+          sudo AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY }} AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_KEY }} beanstalk-deploy "docker-react-demo-gh" "docker-react-demo-gh-env" "${{ github.sha }}-${{ github.run_number }}" "us-west-1" deploy.zip
+
+      # - name: Deploy to Elastic Beanstalk
+      #   uses: einaregilsson/beanstalk-deploy@v22
+      #   with:
+      #     aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+      #     aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+      #     application_name: docker-react-demo-gh
+      #     environment_name: docker-react-demo-gh-env
+      #     existing_bucket_name: elasticbeanstalk-us-west-1-815332568426
+      #     region: us-west-1
+      #     version_label: ${{ github.sha }}-${{ github.run_number }}
+      #     deployment_package: deploy.zip
+      #     use_existing_version_if_available: true
